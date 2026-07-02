@@ -1,0 +1,32 @@
+{
+  "title": "Attested Signing Ceremony: a TPM-2.0 reference implementation for measured-signing evidence",
+  "upload_type": "software",
+  "description": "<p>Reference implementation of the <em>Attested Signing Ceremony</em> described in §6.8.1 of <em>Ficción Jurídica de la Auditoría Delegada</em>. It binds each signed transaction payload to a hardware TPM 2.0 attestation (“measured signing”), commits the attestation digest to a SCITT-style append-only transparency log, and anchors it on-chain via a Bitcoin OP_RETURN output. It demonstrates that a presentation-layer attack — the pattern behind the Bybit, Radiant Capital and WazirX heists — becomes forensically irrefutable: the attestation records the payload that was actually signed, independently of what a compromised interface displayed. All TPM operations run against a real hardware TPM via the in-kernel resource manager.</p>",
+  "creators": [
+    {
+      "name": "Moraga Carrasco, Jaime Marcelo",
+      "affiliation": "Independent researcher"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "TPM 2.0",
+    "remote attestation",
+    "measured signing",
+    "SCITT",
+    "transparency log",
+    "digital evidence",
+    "chain of custody",
+    "Bitcoin OP_RETURN",
+    "cryptocurrency security",
+    "regulatory forensics"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "PLACEHOLDER-paper-DOI-or-SSRN-URL",
+      "resource_type": "publication-article"
+    }
+  ]
+}

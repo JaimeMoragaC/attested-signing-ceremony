@@ -1,0 +1,28 @@
+[package]
+name = "attested-signing-ceremony"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = """
+Reference PoC for the Attested Signing Ceremony (§6.8.1 of «Ficción Jurídica de
+la Auditoría Delegada»). Binds each signed transaction payload to a hardware TPM
+2.0 attestation (measured signing), anchors the attestation digest on-chain via
+Bitcoin OP_RETURN, and records it in a SCITT-style append-only transparency log.
+"""
+authors = ["Jaime Marcelo Moraga Carrasco"]
+
+[[bin]]
+name = "asc"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+sha2 = "0.10"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = "0.4"
+
+[profile.release]
+opt-level = 2

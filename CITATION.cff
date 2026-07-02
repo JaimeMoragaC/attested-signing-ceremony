@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "Attested Signing Ceremony: a TPM-2.0 reference implementation for measured-signing evidence"
+abstract: >-
+  Reference implementation of the Attested Signing Ceremony described in §6.8.1
+  of «Ficción Jurídica de la Auditoría Delegada». It binds each signed
+  transaction payload to a hardware TPM 2.0 attestation ("measured signing"),
+  commits the attestation digest to a SCITT-style append-only transparency log,
+  and anchors it on-chain via a Bitcoin OP_RETURN output. It demonstrates that a
+  presentation-layer attack (the pattern behind the Bybit, Radiant Capital and
+  WazirX heists) becomes forensically irrefutable: the attestation records the
+  payload that was actually signed, independently of what a compromised interface
+  displayed.
+type: software
+authors:
+  - family-names: "Moraga Carrasco"
+    given-names: "Jaime Marcelo"
+    email: root@nexlex.net
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # <-- añade tu ORCID
+version: "0.1.0"
+date-released: "2026-07-02"
+license: MIT
+repository-code: "https://github.com/JaimeMoragaC/attested-signing-ceremony"
+# doi: "10.5281/zenodo.PLACEHOLDER"                     # <-- lo rellena Zenodo
+keywords:
+  - "TPM 2.0"
+  - "remote attestation"
+  - "measured signing"
+  - "SCITT"
+  - "transparency log"
+  - "digital evidence"
+  - "chain of custody"
+  - "Bitcoin OP_RETURN"
+  - "cryptocurrency security"
+  - "regulatory forensics"
