@@ -1,0 +1,11 @@
+ATTESTATION DIGEST ANCHORED TO BITCOIN (OpenTimestamps)
+Attested Signing Ceremony PoC — https://github.com/JaimeMoragaC/attested-signing-ceremony
+
+timestamp:             2026-07-03T00:58:33.239082196+00:00
+signed_payload_sha256: 5f26499acb8444a42d8bbb268a02c4f25ec88d47351bc3c312111095f1ad9663
+attested_pcr23:        6415640b1d0699c9079395279f7d67c954a1e1003e824250cc817b4ba597f722
+attestation_digest:    92808a71b55e5adc4fc619112c1b4fb7ebe67beafd9c6223116d73f81d2af100
+
+Este archivo se sella con OpenTimestamps: la prueba .ots demuestra que este
+digest de atestacion (producido por un TPM 2.0 real) existia antes de un
+bloque de Bitcoin mainnet. Verificar:  ots verify examples/attestation-anchor.txt.ots

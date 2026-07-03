@@ -76,6 +76,21 @@ export ASC_BTC_NETWORK=regtest ASC_BTC_DATADIR=~/.bitcoin-poc-regtest ASC_BTC_WA
 For a publicly verifiable anchor use `ASC_BTC_NETWORK=testnet` with a
 faucet-funded wallet.
 
+### Public Bitcoin anchor, free (OpenTimestamps)
+
+For a publicly verifiable anchor **with no wallet, faucet or fee**, the
+attestation digest can be timestamped on Bitcoin **mainnet** via OpenTimestamps
+(calendar servers aggregate thousands of hashes and pay the fee). A worked
+example ships in [`examples/`](examples/): a real TPM-produced attestation digest
+and its proof.
+
+```bash
+ots verify examples/attestation-anchor.txt.ots
+# run `ots upgrade examples/attestation-anchor.txt.ots` once the Bitcoin block confirms
+```
+
+It proves that a genuine attestation digest existed before a specific Bitcoin block.
+
 The `demo-tamper` run signs a malicious payload while "displaying" a benign one,
 then verifies twice: against the displayed payload it **REJECTS** (PCR23 does not
 match), against the real payload it **PASSES**. That divergence is the forensic
