@@ -15,7 +15,7 @@ type: software
 authors:
   - family-names: "Moraga Carrasco"
     given-names: "Jaime Marcelo"
-    email: root@nexlex.net
+    email: justicia.chile@gmail.com
     # orcid: "https://orcid.org/0000-0000-0000-0000"   # <-- añade tu ORCID
 version: "0.1.0"
 date-released: "2026-07-02"
