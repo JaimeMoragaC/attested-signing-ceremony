@@ -124,6 +124,7 @@ H=$(printf '%s' "$PAYLOAD" | openssl dgst -sha256 -binary | xxd -p -c256)
 ## 6. What is real vs. scaffolded
 
 See README §"What is real vs. scaffolded". In short: all TPM/attestation
-operations and their verification are real; the AK enrolment, the on-chain
-broadcast and the networked SCITT service are deployment steps, deliberately
-left as clearly-marked hardening TODOs.
+operations and their verification are real; with `--broadcast` the `OP_RETURN`
+anchor is really sent to a Bitcoin node (regtest end-to-end; testnet/mainnet via
+`ASC_BTC_NETWORK`) and its txid recorded. The AK enrolment and the networked
+SCITT service remain deployment steps, left as clearly-marked hardening TODOs.

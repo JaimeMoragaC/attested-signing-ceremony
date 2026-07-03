@@ -59,6 +59,23 @@ cargo build --release
 
 Or the whole thing: `bash scripts/run_demo.sh`.
 
+### On-chain anchoring (optional, `--broadcast`)
+
+Add `--broadcast` to build, fund, sign and **send** the `OP_RETURN` anchor to a
+Bitcoin node, recording the real txid in the receipt. Configure the node via
+`ASC_BTC_NETWORK` (`regtest` default / `testnet` / `signet` / `mainnet`),
+`ASC_BTC_DATADIR`, `ASC_BTC_WALLET`:
+
+```bash
+# self-contained: local regtest node, no faucet needed
+export ASC_BTC_NETWORK=regtest ASC_BTC_DATADIR=~/.bitcoin-poc-regtest ASC_BTC_WALLET=poc
+./target/release/asc demo-tamper --broadcast
+# -> receipt shows: OP_RETURN txid <txid> (regtest) [ON-CHAIN]
+```
+
+For a publicly verifiable anchor use `ASC_BTC_NETWORK=testnet` with a
+faucet-funded wallet.
+
 The `demo-tamper` run signs a malicious payload while "displaying" a benign one,
 then verifies twice: against the displayed payload it **REJECTS** (PCR23 does not
 match), against the real payload it **PASSES**. That divergence is the forensic
@@ -67,12 +84,13 @@ proof.
 ## What is real vs. scaffolded
 
 - **Real:** all TPM operations run against your hardware TPM and produce genuine
-  AK-signed quotes; `tpm2_checkquote` cryptographically verifies them; the
-  SCITT chain and the `OP_RETURN` script are fully built and checked.
+  AK-signed quotes; `tpm2_checkquote` cryptographically verifies them; the SCITT
+  chain and the `OP_RETURN` script are fully built and checked; and with
+  `--broadcast` the anchor is **actually transmitted to a Bitcoin node** (via
+  `bitcoin-cli`), returning a real txid recorded in the receipt and verifiable
+  on-chain.
 - **Scaffolded (deliberately):** the AK is created fresh per work directory
-  rather than persisted to an NV handle and enrolled with a CA; the `OP_RETURN`
-  anchor is constructed and size-checked but not broadcast (the exact
-  `bitcoin-cli` command is emitted by `opreturn::broadcast_hint`); the SCITT log
+  rather than persisted to an NV handle and enrolled with a CA; the SCITT log
   is a local hash-chained file, not a networked Transparency Service. These are
   deployment/integration steps, not gaps in the ceremony logic.
 
@@ -81,7 +99,9 @@ proof.
 - Persist + CA-enrol the AK; pin the EK certificate.
 - Parse the signed `quote.pcrs` blob directly instead of trusting
   `tpm2_checkquote`'s echoed PCR values.
-- Broadcast the anchor on testnet and record the txid in the receipt.
+- The `--broadcast` path runs end-to-end on **regtest** (self-contained, mines
+  its own block). For a publicly verifiable txid, set `ASC_BTC_NETWORK=testnet`
+  and fund the wallet from a faucet.
 - Replace the file-based log with a real SCITT Transparency Service + inclusion
   proofs.
 

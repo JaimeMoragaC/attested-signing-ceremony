@@ -19,6 +19,7 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::broadcast::Btc;
 use crate::opreturn;
 use crate::scitt::ScittLog;
 use crate::tpm::{parse_pcr_value, Tpm};
@@ -44,6 +45,8 @@ pub struct Receipt {
     pub nonce_hex: String,
     pub attestation_digest: String,
     pub opreturn_scriptpubkey_hex: String,
+    pub opreturn_txid: Option<String>,
+    pub opreturn_network: Option<String>,
     pub scitt_seq: u64,
     pub scitt_entry_hash: String,
     pub ak_pem: String,
@@ -77,7 +80,7 @@ impl Ceremony {
     /// Run one ceremony binding `signed` (the real instruction). `displayed` is
     /// recorded only to model the UI-vs-payload gap; the attestation is over
     /// `signed`.
-    pub fn run(&self, displayed: &[u8], signed: &[u8]) -> Result<Receipt> {
+    pub fn run(&self, displayed: &[u8], signed: &[u8], broadcast: bool) -> Result<Receipt> {
         let ak = self.tpm.ensure_ak()?;
 
         let displayed_hash = sha256_hex(displayed);
@@ -116,9 +119,18 @@ impl Ceremony {
             &attested_pcr23,
         )?;
 
-        // Step 2b: build the on-chain anchor.
+        // Step 2b: build the on-chain anchor, and optionally broadcast it.
         let digest_bytes = hex::decode(&attestation_digest)?;
         let opreturn_hex = opreturn::script_hex(&digest_bytes)?;
+        let (opreturn_txid, opreturn_network) = if broadcast {
+            let btc = Btc::from_env();
+            let txid = btc
+                .anchor_op_return(&attestation_digest)
+                .context("broadcasting OP_RETURN anchor")?;
+            (Some(txid), Some(btc.network().to_string()))
+        } else {
+            (None, None)
+        };
 
         let receipt = Receipt {
             version: 1,
@@ -130,6 +142,8 @@ impl Ceremony {
             nonce_hex,
             attestation_digest,
             opreturn_scriptpubkey_hex: opreturn_hex,
+            opreturn_txid,
+            opreturn_network,
             scitt_seq: entry.seq,
             scitt_entry_hash: entry.entry_hash,
             ak_pem: ak.pem.to_string_lossy().into_owned(),

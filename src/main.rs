@@ -5,6 +5,7 @@
 //! manager. See README.md for the threat model and the mapping to the Bybit /
 //! Radiant Capital / WazirX cases.
 
+mod broadcast;
 mod ceremony;
 mod opreturn;
 mod scitt;
@@ -39,6 +40,9 @@ enum Cmd {
         /// Payload from a file (any bytes).
         #[arg(long)]
         payload_file: Option<PathBuf>,
+        /// Anchor the attestation digest on-chain via a Bitcoin OP_RETURN.
+        #[arg(long)]
+        broadcast: bool,
     },
     /// Independently verify a receipt against an expected payload.
     Verify {
@@ -53,7 +57,11 @@ enum Cmd {
     /// End-to-end story: benign UI vs. malicious signed payload, then show that
     /// verification against the benign display FAILS and against the real
     /// payload PASSES — the forensic proof the three real heists lacked.
-    DemoTamper,
+    DemoTamper {
+        /// Anchor the attestation digest on-chain via a Bitcoin OP_RETURN.
+        #[arg(long)]
+        broadcast: bool,
+    },
 }
 
 fn load_payload(text: &Option<String>, file: &Option<PathBuf>) -> Result<Vec<u8>> {
@@ -72,6 +80,10 @@ fn print_receipt(r: &Receipt) {
     println!("  nonce               {}", r.nonce_hex);
     println!("  attestation digest  {}", r.attestation_digest);
     println!("  OP_RETURN script    {}", r.opreturn_scriptpubkey_hex);
+    if let Some(txid) = &r.opreturn_txid {
+        let net = r.opreturn_network.as_deref().unwrap_or("?");
+        println!("  OP_RETURN txid      {txid} ({net}) [ON-CHAIN]");
+    }
     println!("  SCITT seq / head    {} / {}", r.scitt_seq, r.scitt_entry_hash);
 }
 
@@ -100,9 +112,9 @@ fn main() -> Result<()> {
             cer.setup()?;
             println!("AK provisioned under {}", cli.workdir.display());
         }
-        Cmd::Ceremony { payload, payload_file } => {
+        Cmd::Ceremony { payload, payload_file, broadcast } => {
             let p = load_payload(&payload, &payload_file)?;
-            let r = cer.run(&p, &p)?;
+            let r = cer.run(&p, &p, broadcast)?;
             println!("── ceremony complete (honest: displayed == signed)");
             print_receipt(&r);
         }
@@ -116,12 +128,12 @@ fn main() -> Result<()> {
                 std::process::exit(1);
             }
         }
-        Cmd::DemoTamper => run_demo_tamper(&cer)?,
+        Cmd::DemoTamper { broadcast } => run_demo_tamper(&cer, broadcast)?,
     }
     Ok(())
 }
 
-fn run_demo_tamper(cer: &Ceremony) -> Result<()> {
+fn run_demo_tamper(cer: &Ceremony, broadcast: bool) -> Result<()> {
     let displayed = b"TRANSFER 0.10 BTC -> bc1q-alice-legitimate-client".to_vec();
     let signed = b"TRANSFER 10.00 BTC -> bc1q-attacker-lazarus-group".to_vec();
 
@@ -136,7 +148,7 @@ fn run_demo_tamper(cer: &Ceremony) -> Result<()> {
     println!(" WHAT was signed. Here, measured signing binds the real payload:");
     println!();
 
-    let r = cer.run(&displayed, &signed)?;
+    let r = cer.run(&displayed, &signed, broadcast)?;
     print_receipt(&r);
     println!();
 
